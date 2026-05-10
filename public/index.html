@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GhibliFinder — AI YouTube Ниши</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#F5F0E8;--warm:#FBF8F3;--ink:#1C1A17;--muted:#6B6560;--faint:#B5AFA8;
+  --moss:#4A6741;--moss-l:#EAF0E8;--dust:#C4956A;--dust-l:#F7EEE4;
+  --sky:#6B8FAB;--sky-l:#EAF0F5;--rose:#B5695A;--rose-l:#F5EAE8;
+  --border:rgba(28,26,23,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+
+/* HEADER */
+.hdr{background:var(--warm);border-bottom:1px solid var(--border);padding:0 2rem;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.hdr-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:62px;gap:1.5rem}
+.logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;letter-spacing:-.3px;white-space:nowrap}
+.logo em{color:var(--moss);font-style:normal}
+.toggle{display:flex;background:var(--cream);border-radius:10px;padding:3px;border:1px solid var(--border);gap:2px;flex-shrink:0}
+.tbtn{font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 16px;border-radius:7px;border:none;cursor:pointer;background:transparent;color:var(--muted);transition:all .18s;white-space:nowrap}
+.tbtn.on{background:var(--warm);color:var(--ink);font-weight:500;box-shadow:0 1px 4px rgba(28,26,23,.1)}
+.hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--moss);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.hdr-time{font-size:12px;color:var(--faint)}
+
+/* MAIN */
+.main{max-width:1200px;margin:0 auto;padding:2rem}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:2.5rem}
+.sc{background:var(--warm);padding:16px;text-align:center}
+.sv{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:500;line-height:1;color:var(--ink)}
+.sl{font-size:11px;color:var(--faint);margin-top:4px;font-weight:300}
+
+/* SECTION */
+.sh{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.st{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;display:flex;align-items:center;gap:8px}
+.scnt{font-size:12px;color:var(--faint)}
+
+/* FILTERS */
+.frow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem}
+.pill{font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 14px;border-radius:99px;border:1px solid var(--border);cursor:pointer;background:var(--warm);color:var(--muted);transition:all .15s;white-space:nowrap}
+.pill:hover{border-color:var(--faint);color:var(--ink)}
+.pill.on{background:var(--ink);color:var(--warm);border-color:var(--ink)}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:2.5rem}
+
+/* CARD */
+.card{background:var(--warm);border:1px solid var(--border);border-radius:14px;overflow:hidden;text-decoration:none;display:block;transition:transform .2s,box-shadow .2s;cursor:pointer}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(28,26,23,.12)}
+.thumb{width:100%;aspect-ratio:16/9;background:var(--cream);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.thumb-s{width:100%;aspect-ratio:9/16;max-height:210px;background:var(--cream);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.thumb img,.thumb-s img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.card:hover .thumb img,.card:hover .thumb-s img{transform:scale(1.05)}
+.thumb-ph{font-size:32px;opacity:.2}
+.dur{position:absolute;bottom:7px;right:7px;background:rgba(28,26,23,.8);color:#fff;font-size:11px;font-weight:500;padding:2px 7px;border-radius:5px}
+.rank{position:absolute;top:7px;left:7px;background:rgba(28,26,23,.75);color:#fff;font-size:11px;font-weight:500;padding:2px 8px;border-radius:5px}
+.badge{position:absolute;top:7px;right:7px;font-size:10px;font-weight:500;padding:3px 8px;border-radius:5px}
+.b-hot{background:var(--rose-l);color:var(--rose)}
+.b-new{background:var(--moss-l);color:var(--moss)}
+.b-ai{background:var(--sky-l);color:var(--sky)}
+.cbody{padding:12px 14px}
+.ctitle{font-size:13px;font-weight:500;color:var(--ink);line-height:1.45;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cch{font-size:11px;color:var(--faint);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.ai-tag{font-size:10px;background:var(--moss-l);color:var(--moss);padding:2px 6px;border-radius:4px;font-weight:500}
+.cmeta{display:flex;gap:10px;flex-wrap:wrap}
+.mi{font-size:11px;color:var(--muted)}
+.growth{font-size:11px;color:var(--moss);font-weight:500;margin-top:5px}
+
+/* SKELETON */
+.sk{background:var(--warm);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.sk-t{width:100%;aspect-ratio:16/9;background:linear-gradient(90deg,var(--cream) 25%,#EDE8E0 50%,var(--cream) 75%);background-size:200% 100%;animation:sh 1.5s infinite}
+.sk-b{padding:12px 14px}
+.sk-l{height:11px;border-radius:6px;background:linear-gradient(90deg,var(--cream) 25%,#EDE8E0 50%,var(--cream) 75%);background-size:200% 100%;animation:sh 1.5s infinite;margin-bottom:8px}
+.sk-l.s{width:55%}.sk-l.m{width:80%}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* EMPTY / ERROR */
+.empty{text-align:center;padding:3rem 2rem;color:var(--muted)}
+.e-icon{font-size:36px;opacity:.5;display:block;margin-bottom:10px}
+.e-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--ink);margin-bottom:6px}
+.e-sub{font-size:13px;line-height:1.6}
+.divider{height:1px;background:var(--border);margin:.5rem 0 2.5rem}
+
+/* REFRESH */
+.rbtn{font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid var(--border);cursor:pointer;background:var(--warm);color:var(--muted);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.rbtn:hover{border-color:var(--faint);color:var(--ink)}
+.rbtn svg{transition:transform .1s}
+.rbtn.loading svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center;font-size:12px;color:var(--faint)}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="logo">🌿 Ghibli<em>Finder</em></div>
+    <div class="toggle">
+      <button class="tbtn on" id="btn-long" onclick="switchType('long')">▶ Длинные видео</button>
+      <button class="tbtn" id="btn-shorts" onclick="switchType('shorts')">⚡ Shorts</button>
+    </div>
+    <div class="hdr-right">
+      <div class="dot"></div>
+      <span class="hdr-time" id="hdr-time">Загрузка...</span>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="stats">
+    <div class="sc"><div class="sv" id="s1">—</div><div class="sl">AI-видео найдено</div></div>
+    <div class="sc"><div class="sv" id="s2">—</div><div class="sl">уникальных каналов</div></div>
+    <div class="sc"><div class="sv" id="s3">—</div><div class="sl">суммарно просмотров</div></div>
+    <div class="sc"><div class="sv">$4–8</div><div class="sl">средний RPM ниши</div></div>
+  </div>
+
+  <!-- ALLTIME -->
+  <div class="sh">
+    <div class="st">🏆 Самые популярные AI Ghibli-видео</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="scnt" id="cnt1"></span>
+      <button class="rbtn" id="rb1" onclick="load(true)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Обновить
+      </button>
+    </div>
+  </div>
+  <div class="frow" id="f1">
+    <button class="pill on" onclick="sf1('all',this)">Все</button>
+    <button class="pill" onclick="sf1('cozy',this)">Уют / ASMR</button>
+    <button class="pill" onclick="sf1('rain',this)">Дождь</button>
+    <button class="pill" onclick="sf1('village',this)">Деревня</button>
+    <button class="pill" onclick="sf1('family',this)">Семья</button>
+    <button class="pill" onclick="sf1('cooking',this)">Готовка</button>
+  </div>
+  <div id="box1"></div>
+
+  <div class="divider"></div>
+
+  <!-- TRENDING -->
+  <div class="sh">
+    <div class="st">📈 Быстро набирают просмотры</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="scnt" id="cnt2"></span>
+      <span style="font-size:11px;color:var(--faint)">за последние 14 дней</span>
+    </div>
+  </div>
+  <div class="frow" id="f2">
+    <button class="pill on" onclick="sf2('all',this)">Все</button>
+    <button class="pill" onclick="sf2('cozy',this)">Уют / ASMR</button>
+    <button class="pill" onclick="sf2('rain',this)">Дождь</button>
+    <button class="pill" onclick="sf2('village',this)">Деревня</button>
+    <button class="pill" onclick="sf2('family',this)">Семья</button>
+    <button class="pill" onclick="sf2('cooking',this)">Готовка</button>
+  </div>
+  <div id="box2"></div>
+
+</main>
+
+<footer>GhibliFinder · данные YouTube Data API · AI-классификация по паттернам Ghibli-каналов</footer>
+
+<script>
+const FKW={
+  cozy:['cozy','asmr','calm','peaceful','quiet','warm','sleep','gentle','soft'],
+  rain:['rain','rainy','storm','stormy','monsoon','drizzle','thunder'],
+  village:['village','countryside','rural','traditional','grandma','grandpa','old','nostalgic'],
+  family:['family','mother','father','grandma','grandpa','children','together','home','mom','dad'],
+  cooking:['cook','cooking','bake','baking','food','meal','recipe','kitchen','stew','soup'],
+};
+
+let type='long', f1='all', f2='all', videos=[];
+
+function fv(n){n=parseInt(n)||0;if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return Math.round(n/1e3)+'K';return n.toString();}
+function fd(iso){const d=new Date(iso),now=new Date(),days=Math.floor((now-d)/86400000);if(days===0)return'сегодня';if(days===1)return'вчера';if(days<7)return days+' дн. назад';if(days<30)return Math.floor(days/7)+' нед. назад';if(days<365)return Math.floor(days/30)+' мес. назад';return Math.floor(days/365)+' г. назад';}
+function gpd(v){const d=Math.max(1,Math.floor((new Date()-new Date(v.publishedAt))/86400000));return Math.round(parseInt(v.views||0)/d);}
+function mf(v,f){if(f==='all')return true;const t=(v.title+' '+(v.description||'')).toLowerCase();return(FKW[f]||[]).some(k=>t.includes(k));}
+
+function skel(n=8){return`<div class="grid">`+Array(n).fill(`<div class="sk"><div class="sk-t"></div><div class="sk-b"><div class="sk-l m"></div><div class="sk-l s"></div></div></div>`).join('')+`</div>`;}
+
+function card(v,rank,showGrowth){
+  const isS=type==='shorts';
+  const tc=isS?'thumb-s':'thumb';
+  const hot=parseInt(v.views)>300000,fresh=gpd(v)>3000;
+  const badge=hot?'<div class="badge b-hot">Хит</div>':fresh?'<div class="badge b-new">Тренд</div>':'<div class="badge b-ai">AI Ghibli</div>';
+  const g=gpd(v);
+  return`<a class="card" href="https://youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">
+    <div class="${tc}">
+      ${v.thumb?`<img src="${v.thumb}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=thumb-ph>🌿</div>'">`:'<div class="thumb-ph">🌿</div>'}
+      ${rank?`<div class="rank">#${rank}</div>`:''}
+      ${v.dur?`<div class="dur">${v.dur}</div>`:''}
+      ${badge}
+    </div>
+    <div class="cbody">
+      <div class="ctitle">${v.title}</div>
+      <div class="cch">${v.channel} <span class="ai-tag">✦ AI</span></div>
+      <div class="cmeta"><span class="mi">👁 ${fv(v.views)}</span><span class="mi">🕐 ${fd(v.publishedAt)}</span></div>
+      ${showGrowth&&g>0?`<div class="growth">↑ ${fv(g)} просм/день</div>`:''}
+    </div>
+  </a>`;
+}
+
+function render(){
+  const a=[...videos].filter(v=>mf(v,f1)).sort((a,b)=>parseInt(b.views)-parseInt(a.views));
+  document.getElementById('cnt1').textContent=a.length+' видео';
+  document.getElementById('box1').innerHTML=a.length?`<div class="grid">${a.map((v,i)=>card(v,i+1,false)).join('')}</div>`:`<div class="empty"><span class="e-icon">🔍</span><div class="e-title">Ничего не найдено</div><div class="e-sub">Попробуйте другой фильтр</div></div>`;
+
+  const cut=new Date(Date.now()-14*24*60*60*1000);
+  const t=[...videos].filter(v=>new Date(v.publishedAt)>cut&&mf(v,f2)).sort((a,b)=>gpd(b)-gpd(a));
+  document.getElementById('cnt2').textContent=t.length+' видео';
+  document.getElementById('box2').innerHTML=t.length?`<div class="grid">${t.map(v=>card(v,0,true)).join('')}</div>`:`<div class="empty"><span class="e-icon">📈</span><div class="e-title">Нет свежих видео за 14 дней</div><div class="e-sub">Попробуйте обновить или сменить фильтр</div></div>`;
+
+  const tv=videos.reduce((s,v)=>s+parseInt(v.views||0),0);
+  const ch=new Set(videos.map(v=>v.channel)).size;
+  document.getElementById('s1').textContent=videos.length;
+  document.getElementById('s2').textContent=ch;
+  document.getElementById('s3').textContent=fv(tv);
+}
+
+async function load(force=false){
+  const btn=document.getElementById('rb1');
+  btn.classList.add('loading');
+  document.getElementById('box1').innerHTML=skel(8);
+  document.getElementById('box2').innerHTML=skel(4);
+  document.getElementById('hdr-time').textContent='Загрузка...';
+
+  try{
+    const r=await fetch(`/api/search?type=${type}&_=${force?Date.now():Math.floor(Date.now()/1800000)}`);
+    if(!r.ok)throw new Error('API error '+r.status);
+    const d=await r.json();
+    videos=d.videos||[];
+    render();
+    const now=new Date();
+    document.getElementById('hdr-time').textContent=`обновлено ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} · ${videos.length} видео`;
+  }catch(e){
+    document.getElementById('box1').innerHTML=`<div class="empty"><span class="e-icon">⚠️</span><div class="e-title">Ошибка загрузки</div><div class="e-sub">${e.message}</div></div>`;
+    document.getElementById('hdr-time').textContent='ошибка';
+  }
+  btn.classList.remove('loading');
+}
+
+function sf1(f,btn){f1=f;document.querySelectorAll('#f1 .pill').forEach(p=>p.classList.remove('on'));btn.classList.add('on');render();}
+function sf2(f,btn){f2=f;document.querySelectorAll('#f2 .pill').forEach(p=>p.classList.remove('on'));btn.classList.add('on');render();}
+async function switchType(t){type=t;document.getElementById('btn-long').classList.toggle('on',t==='long');document.getElementById('btn-shorts').classList.toggle('on',t==='shorts');videos=[];await load();}
+
+load();
+</script>
+</body>
+</html>

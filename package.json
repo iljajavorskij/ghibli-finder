@@ -1,0 +1,6 @@
+{
+  "name": "ghibli-finder",
+  "version": "1.0.0",
+  "description": "AI Ghibli YouTube Channel Finder",
+  "engines": { "node": "20.x" }
+}
